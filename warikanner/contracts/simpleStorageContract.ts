@@ -12,9 +12,22 @@ export const targetNetwork = {
 };
 
 
-export const contractAddress = "0xd0707262Bd756043361331d96D34734017E4a281";
+export const contractAddress = "0x844A8Eb5b5cC975F0C0189159ac015f8E7A319BD";
 
 export const contractABI = [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "data",
+          "type": "uint256"
+        }
+      ],
+      "name": "DataStored",
+      "type": "event"
+    },
     {
       "inputs": [
         {
@@ -43,4 +56,3 @@ export const contractABI = [
       "constant": true
     }
   ];
-

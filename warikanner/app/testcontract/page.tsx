@@ -18,6 +18,7 @@ export default function Page() {
     const [contract, setContract] = useState<Contract | null>(null);
     const [account, setAccount] = useState<string | null>(null);
 
+    const [eventHistory, setEventHistory] = useState<string[]>([]);
     const [inputValue, setInputValue] = useState<number>(-999);
 
     useEffect(() => {
@@ -25,6 +26,12 @@ export default function Page() {
             connectWallet();
         } else {
             alert("MetaMaskがインストールされていません。");
+        }
+
+        return () => {
+            if (contract) {
+                contract.off("DataStored",onDataStored);
+            }
         }
     }, []);
 
@@ -58,17 +65,23 @@ export default function Page() {
 
             const contract = new ethers.Contract(contractAddress, contractABI, signer);
             setContract(contract);
+
+            await contract.on("DataStored",onDataStored);
         } catch (error) {
             console.error("Error connecting wallet:", error);
             alert("ウォレットの接続に失敗しました。");
         }
     }
 
+    const onDataStored = (data:any) => {
+        console.log("DataStored event received:", data.toString());
+        setEventHistory((prevHistory) => [...prevHistory, `Value Changed to ${data.toString()} !` ]);
+    }
+
     const getCurrentValue = async () => {
         if (contract) {
             try {
                 const value = await contract.get();
-                alert(`Current stored value: ${value}`);
                 setInputValue(Number(value));
             } catch (error) {
                 console.error("Error getting value:", error);
@@ -81,7 +94,6 @@ export default function Page() {
             try {
                 const tx = await contract.set(inputValue);
                 await tx.wait();
-                alert("Value set successfully!");
                 getCurrentValue();
             } catch (error) {
                 console.error("Error setting value:", error);
@@ -141,6 +153,15 @@ export default function Page() {
                     Set Value
                 </button>
 
+            </div>
+
+            <div className="mt-6">
+                <h2>Event History</h2>
+                <ul>
+                    {eventHistory.reverse().map((event, index) => (
+                        <li key={index}>{event}</li>
+                    ))}
+                </ul>
             </div>
         </div>
     );

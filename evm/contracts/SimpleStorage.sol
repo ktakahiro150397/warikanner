@@ -4,8 +4,11 @@
     contract SimpleStorage {
         uint storedData;
 
+        event DataStored(uint data);
+
         function set(uint x) public {
             storedData = x;
+            emit DataStored(x);
         }
 
         function get() public view returns (uint) {
