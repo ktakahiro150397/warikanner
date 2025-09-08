@@ -1,0 +1,56 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+  "name": "Warikanner App",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "PKief.material-icon-theme",
+        "JuanBlanco.solidity",
+        "NomicFoundation.hardhat-solidity",
+        "tintinweb.solidity-visual-auditor"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "solidity.compileUsingRemoteVersion": "latest",
+        "solidity.defaultCompiler": "remote"
+      }
+    }
+  },
+  "postCreateCommand": [
+    "bash",
+    "-c",
+    "echo 'Starting postCreateCommand...' && bash .devcontainer/setup.sh && echo 'Setup completedsucessfully!' || echo 'Setup failed!'"
+  ],
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  "forwardPorts": [3000, 8545],
+  "portsAttributes": {
+    "3000": {
+      "label": "Application",
+      "onAutoForward": "notify"
+    },
+    "8545": {
+      "label": "Local Blockchain",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "node",
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/anvil-data,target=/home/node/.anvil,type=bind,consistency=cached"
+  ]
+}
