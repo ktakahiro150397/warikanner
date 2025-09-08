@@ -4,6 +4,15 @@
 set -e # Exit immediately if a command exits with a non-zero status.
 set -x # Print commands and their arguments as they are executed.
 
+# Gitサブモジュールの初期化と更新
+echo "📁 Gitサブモジュールを初期化中..."
+if git submodule update --init --recursive; then
+    echo "✅ Gitサブモジュール初期化完了"
+else
+    echo "❌ Gitサブモジュール初期化失敗"
+    exit 1
+fi
+
 if npm install -g pnpm; then
     echo "pnpm installed successfully"
 else

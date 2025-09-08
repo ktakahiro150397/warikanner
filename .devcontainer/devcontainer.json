@@ -19,7 +19,8 @@
         "PKief.material-icon-theme",
         "JuanBlanco.solidity",
         "NomicFoundation.hardhat-solidity",
-        "tintinweb.solidity-visual-auditor"
+        "tintinweb.solidity-visual-auditor",
+        "sevillal.vscode-solidity"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
