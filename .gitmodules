@@ -1,0 +1,6 @@
+[submodule "waricontract/lib/forge-std"]
+	path = waricontract/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "waricontract/lib/openzeppelin-contracts"]
+	path = waricontract/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
