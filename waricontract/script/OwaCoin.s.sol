@@ -15,7 +15,7 @@ contract OwaCoinScript is Script {
         vm.startBroadcast();
 
         // コインデプロイ
-        uint256 totalCoin = 10000; // 1000億コイン
+        uint256 totalCoin = 10000;
         owaCoin = new OwaCoin(totalCoin);
         address deployedContractAddress = address(owaCoin);
 
