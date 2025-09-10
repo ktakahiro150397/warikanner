@@ -5,7 +5,7 @@ import {ERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol"
 
 contract OwaCoin is ERC20 {
     constructor(uint256 totalCoin) ERC20("OwaCoin", "OWA") {
-        _mint(msg.sender, totalCoin ** decimals());
+        _mint(msg.sender, totalCoin * (10 ** decimals()));
     }
 
     function decimals() public view virtual override returns (uint8) {

@@ -1,8 +1,10 @@
 #!/bin/bash
 
-
 set -e # Exit immediately if a command exits with a non-zero status.
 set -x # Print commands and their arguments as they are executed.
+
+# 環境変数の設定
+export no_proxy="127.0.0.1,localhost,192.168.2.0/24, ::1"
 
 # Gitサブモジュールの初期化と更新
 echo "📁 Gitサブモジュールを初期化中..."
