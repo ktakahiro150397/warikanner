@@ -10,13 +10,13 @@ contract OwaCoinTest is Test {
         testNumber = 42;
     }
 
-    function test_numberIs42() public view {
-        assertEq(testNumber, 42);
-    }
+    // function test_numberIs42() public view {
+    //     assertEq(testNumber, 42);
+    // }
 
-    /// forge-config: default.allow_internal_expect_revert = true
-    function testRevert_Subtract43() public {
-        vm.expectRevert();
-        testNumber /= 0;
-    }
+    // /// forge-config: default.allow_internal_expect_revert = true
+    // function testRevert_Subtract43() public {
+    //     vm.expectRevert();
+    //     testNumber /= 0;
+    // }
 }

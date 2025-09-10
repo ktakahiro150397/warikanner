@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 // import {WarikanTransaction} from "Model/TransactionModel.sol";
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {WarikanTransaction} from "./Model/TransactionModel.sol";
-import {AddWarikanTransaction} from "./event/TransactionEvent.sol";
+import {AddWarikanTransaction, SettleWarikanTransaction} from "./event/TransactionEvent.sol";
 
 contract PaymentGateway {
     IERC20 public token;
@@ -18,6 +18,12 @@ contract PaymentGateway {
      * 割り勘IDとトランザクションIDのマッピング
      */
     mapping(uint128 => uint128[]) public warikanTransactions;
+
+    // カスタムエラーの定義
+    error TransactionNotFound(uint128 id);
+    error TransactionAlreadyPaid(uint128 id);
+    error TransactionAlreadyCanceled(uint128 id);
+    error TransferFailed(address from, address to, uint256 amount);
 
     constructor(address tokenAddress) {
         // 取り扱うERC20トークンの参照を設定
@@ -61,6 +67,40 @@ contract PaymentGateway {
             amount,
             currentTimestamp,
             memo
+        );
+    }
+
+    function payTransaction(uint128 id) public {
+        WarikanTransaction memory transaction = transactions[id];
+
+        if (transaction.id == 0) {
+            revert TransactionNotFound(id);
+        }
+
+        if (transaction.isPaid) {
+            revert TransactionAlreadyPaid(id);
+        }
+
+        if (transaction.isCanceled) {
+            revert TransactionAlreadyCanceled(id);
+        }
+
+        // トークンの送金を実行
+        address from = transaction.from;
+        address to = transaction.to;
+        uint amount = transaction.amount;
+
+        token.transferFrom(from, to, amount);
+
+        // トランザクションの状態を更新
+        transaction.isPaid = true;
+        transactions[id] = transaction;
+
+        // 支払い完了イベント
+        emit SettleWarikanTransaction(
+            id,
+            transaction.warikanId,
+            block.timestamp
         );
     }
 
