@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-// import {WarikanTransaction} from "Model/TransactionModel.sol";
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {WarikanTransaction} from "./Model/TransactionModel.sol";
 import {AddWarikanTransaction, SettleWarikanTransaction, CancelWarikanTransaction} from "./event/TransactionEvent.sol";
 
+/**
+ * @title PaymentGateway
+ * @author
+ * @notice https://note.com/standenglish/n/nfd0d502aa268
+ * ERC2771 メタトランザクションに対応する、Forwarderからの呼び出しを受け入れるコントラクト
+ * "Gasless"プレフィックスのついた関数はForwarder経由での呼び出しを想定
+ */
 contract PaymentGateway {
     IERC20 public token;
 
@@ -68,6 +74,17 @@ contract PaymentGateway {
             currentTimestamp,
             memo
         );
+    }
+
+    function addNewTransactionGasless(
+        uint128 id,
+        uint128 warikanId,
+        address from,
+        address to,
+        uint amount,
+        string calldata memo
+    ) public {
+        // TODO : 実装
     }
 
     function payTransaction(uint128 id) public {
