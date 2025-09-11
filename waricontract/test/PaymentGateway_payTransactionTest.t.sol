@@ -140,31 +140,31 @@ contract PaymentGateway_payTransactionTest is Test {
         paymentGateway.payTransaction(id);
     }
 
-    // function test_payTransaction_ShouldError_WhenTransactionAlreadyCanceled()
-    //     public
-    // {
-    //     // 事前にトランザクションを追加
-    //     uint128 id = 990002;
-    //     uint128 warikanId = 980002;
-    //     address from = address(0xabc);
-    //     address to = address(0xdef);
-    //     uint amount = 100;
-    //     string memory memo = "Dinner payment";
+    function test_payTransaction_ShouldError_WhenTransactionAlreadyCanceled()
+        public
+    {
+        // 事前にトランザクションを追加
+        uint128 id = 990002;
+        uint128 warikanId = 980002;
+        address from = address(0xabc);
+        address to = address(0xdef);
+        uint amount = 100;
+        string memory memo = "Dinner payment";
 
-    //     paymentGateway.addNewTransaction(id, warikanId, from, to, amount, memo);
+        paymentGateway.addNewTransaction(id, warikanId, from, to, amount, memo);
 
-    //     // トランザクションをキャンセル
-    //     // paymentGateway.cancelTransaction(id);
+        // トランザクションをキャンセル
+        paymentGateway.cancelTransaction(id);
 
-    //     // キャンセルされたトランザクションに対して例外が発生することを期待
-    //     vm.expectRevert(
-    //         abi.encodeWithSelector(
-    //             PaymentGateway.TransactionAlreadyCanceled.selector,
-    //             id
-    //         )
-    //     );
+        // キャンセルされたトランザクションに対して例外が発生することを期待
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                PaymentGateway.TransactionAlreadyCanceled.selector,
+                id
+            )
+        );
 
-    //     // payTransaction関数を呼び出し
-    //     paymentGateway.payTransaction(id);
-    // }
+        // payTransaction関数を呼び出し
+        paymentGateway.payTransaction(id);
+    }
 }

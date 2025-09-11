@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 // import {WarikanTransaction} from "Model/TransactionModel.sol";
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {WarikanTransaction} from "./Model/TransactionModel.sol";
-import {AddWarikanTransaction, SettleWarikanTransaction} from "./event/TransactionEvent.sol";
+import {AddWarikanTransaction, SettleWarikanTransaction, CancelWarikanTransaction} from "./event/TransactionEvent.sol";
 
 contract PaymentGateway {
     IERC20 public token;
@@ -98,6 +98,33 @@ contract PaymentGateway {
 
         // 支払い完了イベント
         emit SettleWarikanTransaction(
+            id,
+            transaction.warikanId,
+            block.timestamp
+        );
+    }
+
+    function cancelTransaction(uint128 id) public {
+        WarikanTransaction memory transaction = transactions[id];
+
+        if (transaction.id == 0) {
+            revert TransactionNotFound(id);
+        }
+
+        if (transaction.isPaid) {
+            revert TransactionAlreadyPaid(id);
+        }
+
+        if (transaction.isCanceled) {
+            revert TransactionAlreadyCanceled(id);
+        }
+
+        // トランザクションの状態を更新
+        transaction.isCanceled = true;
+        transactions[id] = transaction;
+
+        // キャンセルイベント（必要に応じて追加）
+        emit CancelWarikanTransaction(
             id,
             transaction.warikanId,
             block.timestamp
