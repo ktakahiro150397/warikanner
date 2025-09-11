@@ -13,7 +13,7 @@ contract PaymentGateway_cancelTransactionTest is Test {
 
     function setUp() public {
         owaCoin = new OwaCoin(10000);
-        paymentGateway = new PaymentGateway(address(owaCoin));
+        paymentGateway = new PaymentGateway(address(owaCoin), address(0x1));
     }
 
     function test_cancelTransaction_ShouldEmit_CancelWarikanTransaction()

@@ -12,7 +12,7 @@ contract PaymentGateway_addnewTransactionTest is Test {
     function setUp() public {
         // テスト用にOwaCoinのアドレスをダミーで設定
         address dummyOwaCoinAddress = address(0x123);
-        paymentGateway = new PaymentGateway(dummyOwaCoinAddress);
+        paymentGateway = new PaymentGateway(dummyOwaCoinAddress, address(0x1));
     }
 
     function test_addNewTransaction_ShouldEmit_AddWarikanTransaction() public {

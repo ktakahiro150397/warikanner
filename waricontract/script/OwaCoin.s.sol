@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import {Script} from "../lib/forge-std/src/Script.sol";
 import {OwaCoin} from "../src/OwaCoin.sol";
 import {PaymentGateway} from "../src/PaymentGateway.sol";
+import {PaymentTrustedForwarder} from "../src/PaymentTrustedForwarder.sol";
 import {console} from "../lib/forge-std/src/console.sol";
 
 contract OwaCoinScript is Script {
@@ -23,9 +24,22 @@ contract OwaCoinScript is Script {
         console.log("OwaCoin address:", deployedContractAddress);
         console.log("OwaCoin totalSupply:", owaCoin.totalSupply());
 
+        // Forwarderのデプロイ
+        PaymentTrustedForwarder forwarder = new PaymentTrustedForwarder(
+            "PaymentForwarder"
+        );
+        address deployedForwarderAddress = address(forwarder);
+
+        console.log("PaymentTrustedForwarder deployed successfully!");
+        console.log(
+            "PaymentTrustedForwarder address:",
+            deployedForwarderAddress
+        );
+
         // 支払い管理スマートコントラクトデプロイ
         PaymentGateway paymentGateway = new PaymentGateway(
-            deployedContractAddress
+            deployedContractAddress,
+            deployedForwarderAddress
         );
         address deployedPaymentGatewayAddress = address(paymentGateway);
 

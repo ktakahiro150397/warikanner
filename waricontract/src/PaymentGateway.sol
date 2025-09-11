@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {ERC2771Context} from "../lib/openzeppelin-contracts/contracts/metatx/ERC2771Context.sol";
 import {WarikanTransaction} from "./Model/TransactionModel.sol";
 import {AddWarikanTransaction, SettleWarikanTransaction, CancelWarikanTransaction} from "./event/TransactionEvent.sol";
 
@@ -12,7 +13,7 @@ import {AddWarikanTransaction, SettleWarikanTransaction, CancelWarikanTransactio
  * ERC2771 メタトランザクションに対応する、Forwarderからの呼び出しを受け入れるコントラクト
  * "Gasless"プレフィックスのついた関数はForwarder経由での呼び出しを想定
  */
-contract PaymentGateway {
+contract PaymentGateway is ERC2771Context {
     IERC20 public token;
 
     /**
@@ -31,7 +32,10 @@ contract PaymentGateway {
     error TransactionAlreadyCanceled(uint128 id);
     error TransferFailed(address from, address to, uint256 amount);
 
-    constructor(address tokenAddress) {
+    constructor(
+        address tokenAddress,
+        address forwarder
+    ) ERC2771Context(forwarder) {
         // 取り扱うERC20トークンの参照を設定
         token = IERC20(tokenAddress);
     }
@@ -85,6 +89,16 @@ contract PaymentGateway {
         string calldata memo
     ) public {
         // TODO : 実装
+
+        emit AddWarikanTransaction(
+            id,
+            warikanId,
+            from,
+            to,
+            amount,
+            block.timestamp,
+            memo
+        );
     }
 
     function payTransaction(uint128 id) public {

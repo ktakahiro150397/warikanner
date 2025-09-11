@@ -19,4 +19,14 @@ forge script ../script/OwaCoin.s.sol:OwaCoinScript \
     --private-key $PRIVATE_KEY \
     --broadcast
 
+# ABI JSONファイルの作成
+echo "Generating ABI JSON files..."
+cd ..
+mkdir abi
+forge inspect src/OwaCoin.sol abi --json > abi/OwaCoin.json
+forge inspect src/PaymentGateway.sol abi --json > abi/PaymentGateway.json
+forge inspect src/PaymentTrustedForwarder.sol abi --json > abi/PaymentTrustedForwarder.json
+cd shellscripts/
+echo "ABI JSON files generated in the 'abi' directory."
+
 echo "OwaCoin contract deployed successfully."

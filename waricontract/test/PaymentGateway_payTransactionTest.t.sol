@@ -13,7 +13,7 @@ contract PaymentGateway_payTransactionTest is Test {
 
     function setUp() public {
         owaCoin = new OwaCoin(10000);
-        paymentGateway = new PaymentGateway(address(owaCoin));
+        paymentGateway = new PaymentGateway(address(owaCoin), address(0x1));
     }
 
     function test_payTransaction_ShouldEmit_SettleWarikanTransaction() public {
