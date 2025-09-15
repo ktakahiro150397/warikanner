@@ -21,8 +21,15 @@ forge script ../script/OwaCoin.s.sol:OwaCoinScript \
 
 # ABI JSONファイルの作成
 echo "Generating ABI JSON files..."
+
+# ../abi ディレクトリが存在する場合は削除
+if [ -d "../abi" ]; then
+    rm -rf ../abi
+fi
 cd ..
 mkdir abi
+
+
 forge inspect src/OwaCoin.sol abi --json > abi/OwaCoin.json
 forge inspect src/PaymentGateway.sol abi --json > abi/PaymentGateway.json
 forge inspect src/PaymentTrustedForwarder.sol abi --json > abi/PaymentTrustedForwarder.json
