@@ -4,6 +4,7 @@ import {
   HistoryInterface,
   Invoice,
   PaymentHistory,
+  AddNewNetworkParams,
 } from "@/types";
 import { ethers } from "ethers";
 
@@ -47,6 +48,35 @@ class WalletService implements WalletInterface {
 
   isConnected(): boolean {
     return this.connected;
+  }
+
+  async getProvider(): Promise<ethers.Provider> {
+    if (!this.provider) {
+      throw new Error(
+        "Provider not initialized. Please connect the wallet first."
+      );
+    }
+    return this.provider;
+  }
+
+  async getSigner(): Promise<ethers.Signer> {
+    if (!this.signer) {
+      throw new Error(
+        "Signer not initialized. Please connect the wallet first."
+      );
+    }
+    return this.signer;
+  }
+
+  async requestAddNetwork(params: AddNewNetworkParams) {
+    console.log("Requesting to add network:", params);
+
+    await window.ethereum?.request({
+      method: "wallet_addEthereumChain",
+      params: [params],
+    });
+
+    console.log("Network addition request sent");
   }
 }
 

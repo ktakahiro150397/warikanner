@@ -15,27 +15,47 @@ import {
   RpcUrl,
   RelayerPrivateKey,
 } from "./Contract";
+import { Signer } from "ethers";
+
+// シングルトンパターンでプロバイダーを管理
+let _sharedProvider: ethers.JsonRpcProvider | null = null;
+let _sharedRelayerSigner: ethers.Wallet | null = null;
+
+function getSharedProvider(): ethers.JsonRpcProvider {
+  if (!_sharedProvider) {
+    _sharedProvider = new ethers.JsonRpcProvider(RpcUrl);
+  }
+  return _sharedProvider;
+}
+
+function getSharedRelayerSigner(): ethers.Wallet {
+  if (!_sharedRelayerSigner) {
+    _sharedRelayerSigner = new ethers.Wallet(
+      RelayerPrivateKey,
+      getSharedProvider()
+    );
+  }
+  return _sharedRelayerSigner;
+}
 
 export async function GetSignMetaTransaction(
-  //   provider: Provider,
-  //   signer: JsonRpcSigner,
+  signer: Signer,
   params: AddNewTransactionParams
 ): Promise<MetaTransactionRequest & { signature: string }> {
   console.log("GetSignMetaTransaction called");
   console.log("ForwarderContractAddress:", TrustedForwarderContractAddress);
 
-  // リレイヤー側の情報から署名器を生成
-  const provider = new ethers.JsonRpcProvider(RpcUrl);
-  const relayerSigner = new ethers.Wallet(RelayerPrivateKey, provider);
+  const signerAddress = await signer.getAddress();
 
   console.log("RpcUrl:", RpcUrl);
-  console.log("Relayer address:", relayerSigner.address);
+  console.log("Signer address:", signerAddress);
 
-  // Forwaderコントラクト
+  // サーバー側のRPCプロバイダーを使用してnonceを取得
+  const serverProvider = getSharedProvider();
   const forwarderContract = new ethers.Contract(
     TrustedForwarderContractAddress,
     TrustedForwarderAbi,
-    provider
+    serverProvider // 共有プロバイダーを使用
   ) as ethers.Contract & ForwarderContract;
 
   // リクエストデータの作成
@@ -46,11 +66,17 @@ export async function GetSignMetaTransaction(
   );
 
   // 処理前に現在のnonceを取得
-  const nonce = await forwarderContract.nonces(relayerSigner.address);
+  let nonce: bigint;
+  try {
+    nonce = await forwarderContract.nonces(signerAddress);
+  } catch (error) {
+    console.error("Error calling nonces():", error);
+    throw error;
+  }
 
   // EIP-712 構造化データの作成
   const value = new SignedRequestForTrustedForwarder({
-    from: relayerSigner.address as Address,
+    from: signerAddress as Address,
     to: PaymentGatewayContractAddress,
     value: "0",
     gas: "1000000",
@@ -68,10 +94,9 @@ export async function GetSignMetaTransaction(
     chainId: domain.chainId,
     verifyingContract: domain.verifyingContract,
   };
-  console.log("Param Domain:", paramDomain);
 
   // 署名の生成
-  const signature = await relayerSigner.signTypedData(
+  const signature = await signer.signTypedData(
     paramDomain,
     value.types,
     value.getUnsignedRawData()
@@ -81,4 +106,60 @@ export async function GetSignMetaTransaction(
   return {
     ...value.getSignedData(),
   };
+}
+
+export async function sendMetaTransaction(
+  request: MetaTransactionRequest & { signature: string }
+) {
+  console.log("sendMetaTransaction called");
+
+  const relayerSigner = getSharedRelayerSigner();
+
+  const forwarderContract = new ethers.Contract(
+    TrustedForwarderContractAddress,
+    TrustedForwarderAbi,
+    relayerSigner
+  ) as ethers.Contract & ForwarderContract;
+
+  console.log("Verifying request...");
+  const result = await forwarderContract.verify(request);
+  console.log("Verification result:", result);
+
+  if (!result) {
+    console.error("Request verification failed");
+    throw new Error("Request verification failed");
+  }
+
+  console.log("Executing transaction...");
+  try {
+    const tx = await forwarderContract.execute(request);
+    console.log("Transaction sent:", tx.hash);
+    console.log("Transaction details:", {
+      from: tx.from,
+      to: tx.to,
+      gasLimit: tx.gasLimit?.toString(),
+      gasPrice: tx.gasPrice?.toString(),
+    });
+
+    const receipt = await tx.wait();
+    console.log("Transaction confirmed!");
+
+    if (receipt) {
+      console.log("Receipt details:", {
+        status: receipt.status,
+        gasUsed: receipt.gasUsed?.toString(),
+        blockNumber: receipt.blockNumber,
+      });
+    }
+
+    return receipt;
+  } catch (error) {
+    console.error("Transaction execution failed:", error);
+
+    // 実行失敗後のnonceを確認
+    const nonceAfterFailure = await forwarderContract.nonces(request.from);
+    console.log("Nonce after failure:", nonceAfterFailure.toString());
+
+    throw error;
+  }
 }

@@ -2,6 +2,8 @@
 // 基本データ型
 // ======================================
 
+import { Provider, Signer } from "ethers";
+
 export interface User {
   address: string;
   name?: string;
@@ -29,13 +31,26 @@ export interface PaymentHistory {
 // ======================================
 // API インターフェース（モック用）
 // ======================================
-
+export interface AddNewNetworkParams {
+  chainId: string;
+  chainName: string;
+  nativeCurrency: {
+    name: "ETH";
+    symbol: "ETH";
+    decimals: 18;
+  };
+  rpcUrls: string[];
+  blockExplorerUrls: string[] | null;
+}
 export interface WalletInterface {
   connect(): Promise<string>;
   disconnect(): Promise<void>;
   getAddress(): Promise<string>;
   getNetwork(): Promise<bigint>;
   isConnected(): boolean;
+  getProvider(): Promise<Provider>;
+  getSigner(): Promise<Signer>;
+  requestAddNetwork(params: AddNewNetworkParams): Promise<void>;
 }
 
 export interface ContractInterface {
