@@ -9,11 +9,11 @@ export interface User {
 
 export interface Invoice {
   id: string;
-  payer: string;        // 支払者のアドレス
-  recipient: string;    // 受取人のアドレス
-  amount: string;       // 金額（Wei単位での文字列）
-  isPaid: boolean;      // 支払い済みフラグ
-  createdAt?: number;   // 作成日時（タイムスタンプ）
+  payer: string; // 支払者のアドレス
+  recipient: string; // 受取人のアドレス
+  amount: string; // 金額（Wei単位での文字列）
+  isPaid: boolean; // 支払い済みフラグ
+  createdAt?: number; // 作成日時（タイムスタンプ）
   description?: string; // 説明
 }
 
@@ -34,12 +34,16 @@ export interface WalletInterface {
   connect(): Promise<string>;
   disconnect(): Promise<void>;
   getAddress(): Promise<string>;
-  getNetwork(): Promise<number>;
+  getNetwork(): Promise<bigint>;
   isConnected(): boolean;
 }
 
 export interface ContractInterface {
-  createInvoice(payer: string, amount: string, description?: string): Promise<string>;
+  createInvoice(
+    payer: string,
+    amount: string,
+    description?: string
+  ): Promise<string>;
   payInvoice(invoiceId: string): Promise<string>;
   getInvoice(invoiceId: string): Promise<Invoice>;
   getInvoicesForUser(userAddress: string): Promise<Invoice[]>;
@@ -83,7 +87,7 @@ export interface CreateInvoiceParticipant {
    * 支払う金額
    */
   amount: number;
-  
+
   /**
    * 端数を負担するかどうか
    */
